@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 // schema
 const Schema = mongoose.Schema;
 
+// schema Curso
+var Curso = mongoose.model('Curso');
+
 const estudianteSchema = new Schema({
     documento: {
         type: String,
@@ -30,9 +33,8 @@ const estudianteSchema = new Schema({
         trim: true
     },
     curso: {
-        type: String,
-        required: true,
-        trim: true
+        type: Schema.ObjectId,
+        ref: "Curso"
     }
 });
 

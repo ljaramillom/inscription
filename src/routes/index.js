@@ -144,13 +144,14 @@ app.post('/view-register', async(req, res) => {
 });
 
 // ver todos los estudiantes inscritos
-app.get('/list-students', async(req, res) => {
-    await Estudiante.find().sort({ documento: 'asc' }).exec((err, resp) => {
-        if (!err) {
+app.get('/list-students', (req, res) => {
+    Estudiante.find({}, (err, resp) => {
+        Curso.populate(resp, { path: "curso" }, (err, response) => {
             res.render('list-students', {
-                listado: resp
+                listado: response,
             });
-        }
+        });
+
     });
 });
 

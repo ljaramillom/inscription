@@ -22,7 +22,7 @@ hbs.registerHelper('listarSelect', (listaCursos) => {
     let texto = `<select class='form-control' name='curso'>`
     listaCursos.forEach(curso => {
         texto = texto +
-            `<option value=${curso.codigo}><td>${curso.nombre}</option>`
+            `<option value=${curso._id}><td>${curso.nombre}</option>`
     });
     texto = texto + "</select>"
     return texto;
@@ -96,13 +96,14 @@ hbs.registerHelper('mostrarEstudiantes', (listaEstudiantes) => {
     let texto = ` <form action='/delete-student' method='POST'>
     <table class='table table-bordered'> \ <thead> \ <th> Documento de Identidad </th> \ <th> Nombre </th> \ <th> Apellido </th> \ <th> Correo Electrónico </th> \ <th> Teléfono </th> \ <th> Curso </th> \ <th> Acciones </th> \ </thead> \ <tbody>`
     listaEstudiantes.forEach(est => {
+        let nombreCurso = est.curso.nombre;
         texto = texto +
             `<tr><td>${est.documento}</td>
             <td> ${est.nombre}</td>
             <td>${est.apellido}</td>
             <td> ${est.correo}</td>
             <td> ${est.telefono}</td>
-            <td> ${est.curso}</td>
+            <td> ${nombreCurso}</td>
             <td><button type="submit" name="documento" value=${est.documento} class="btn btn-danger">Eliminar</button></td></tr></tr>`
     });
     texto = texto + `</tbody></table></form>`
