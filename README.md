@@ -1,1 +1,1 @@
-#mongo-inscription.git
+# inscription
