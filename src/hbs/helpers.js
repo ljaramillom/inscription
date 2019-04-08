@@ -33,7 +33,8 @@ hbs.registerHelper('mostrarCursos', (listaCursos) => {
     let texto = `<div class='accordion' id='accordionCursos'>`
     let i = 1;
     listaCursos.forEach(curso => {
-        texto = texto + `   <div class="card">
+        if (curso.estado == 'Disponible') {
+            texto = texto + `   <div class="card">
                                 <div class="card-header" id="heading${i}">
                                     <h5 class="mb-0">
                                         <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
@@ -54,7 +55,8 @@ hbs.registerHelper('mostrarCursos', (listaCursos) => {
                                     </div>
                                 </div>
                             </div>`
-        i = i + 1;
+            i = i + 1;
+        }
     });
     texto = texto + `</div>`
     return texto;
@@ -109,3 +111,10 @@ hbs.registerHelper('mostrarEstudiantes', (listaEstudiantes) => {
     texto = texto + `</tbody></table></form>`
     return texto;
 });
+
+hbs.isAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    return 'No autorizado.';
+};

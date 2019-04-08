@@ -1,0 +1,30 @@
+{{> head }}<br><br><br><br>
+<div class="row">
+  <div class="col-md-4 mx-auto">
+    <div class="card mt-4">
+      <div class="card-header">
+        <h1 class="h4 text-center">
+          Iniciar Sesión
+        </h1>
+      </div>
+      <div class="card-body">
+        <form action="/sign-in" method="POST">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" class="form-control" name="nombre" placeholder="Nombre" autofocus required>
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" class="form-control" name="password" placeholder="Contraseña" required>
+          </div>
+
+          <button class="btn btn-success float-left">
+            Ingresar
+          </button>
+          <a href="/sign-up" class="float-right" style="margin-top: 14px;">Registrarme</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{> footer }}

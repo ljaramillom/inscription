@@ -1,33 +1,30 @@
 // express
 const express = require('express');
 const app = express();
-
 // hbs
 const hbs = require('hbs');
 require('../hbs/helpers');
-
 // path
 const path = require('path');
-
 // mongoose
 const mongoose = require('mongoose');
-
 // bodyParser
 const bodyParser = require('body-parser');
-
+// passport
+const passport = require('passport');
 // views - partials
 const dirViews = path.join(__dirname, '../../template/views');
 const dirPartials = path.join(__dirname, '../../template/partials');
-
 // schemas
 const Curso = require('./../models/cursos');
 const Estudiante = require('./../models/estudiantes');
+const Usuario = require('../models/usuarios');
 
 app.set('view engine', 'hbs');
 app.set('views', dirViews)
 hbs.registerPartials(dirPartials);
 
-app.get('/', (req, res) => {
+app.get('/home', (req, res) => {
     res.render('home');
 });
 
@@ -65,28 +62,22 @@ app.post('/view-course', async(req, res) => {
 // ver todos los cursos
 app.get('/view-all-courses', async(req, res) => {
     await Curso.find().sort({ codigo: 'asc' }).exec((err, resp) => {
-        if (err) {
+        if (!err) {
             res.render('view-all-courses', {
-                message: err
+                listado: resp
             });
         }
-        res.render('view-all-courses', {
-            listado: resp
-        });
     });
 });
 
 // actualizar el estado del curso
 app.get('/update-course', async(req, res) => {
     await Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
-        if (err) {
+        if (!err) {
             res.render('update-course', {
-                message: err
+                listado: resp
             });
         }
-        res.render('update-course', {
-            listado: resp
-        });
     });
 });
 
@@ -130,11 +121,11 @@ app.post('/view-register', async(req, res) => {
     });
 
     await estudiante.save((err, resp) => {
-        //pendiente validacion
+        //pendiente validacion (El estudiante ya se encuentra inscrito en el curso.)
         if (err) {
             errors.push(err);
             res.render('view-register', {
-                message: 'El estudiante ya se encuentra inscrito en el curso.'
+                errors
             });
         }
         res.render('view-register', {
@@ -176,6 +167,47 @@ app.post('/delete-student', async(req, res) => {
             errors
         });
     });
+});
+
+// sign-in get
+app.get('/', (req, res) => {
+    res.render('sign-in');
+});
+
+// sign-in post
+app.post('/sign-in', passport.authenticate('local', {
+    successRedirect: '/home',
+    failureRedirect: '/sign-in',
+}));
+
+// sign-up post
+app.post('/sign-up', async(req, res) => {
+    const errors = [];
+    let usuario = new Usuario({
+        documento: req.body.documento,
+        nombre: req.body.nombre,
+        correo: req.body.correo,
+        telefono: req.body.telefono,
+        password: req.body.password,
+        role: req.body.role
+    });
+
+    await usuario.save((err, resp) => {
+        if (err) {
+            errors.push(err);
+            res.render('home', {
+                errors
+            });
+        }
+        res.render('home', {
+            message: 'Registro realizado exitosamente.',
+        });
+    });
+});
+
+// sign-up get
+app.get('/sign-up', (req, res) => {
+    res.render('sign-up');
 });
 
 // error

@@ -1,4 +1,8 @@
 require('./config/config');
+require('./config/passport');
+
+// session
+const session = require('express-session');
 
 //express
 const express = require('express');
@@ -13,6 +17,9 @@ const bodyParser = require('body-parser');
 // mongoose
 const mongoose = require('mongoose');
 
+// passport
+const passport = require('passport');
+
 // paths
 const dirPublic = path.join(__dirname, "../public")
 const dirNode_modules = path.join(__dirname, '../node_modules')
@@ -22,6 +29,15 @@ app.use(express.static(dirPublic));
 
 // bodyParser
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.urlencoded({ extended: false }));
+app.use(session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // routes
 app.use(require('./routes/index'));
