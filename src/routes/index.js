@@ -192,7 +192,7 @@ app.post('/sign-in', (req, res) => {
         if (!resp) {
             res.render('sign-in', {
                 error: 'Usuario no encontrado, por favor intente nuevamente.'
-            })
+            });
         }
 
         if (!bcrypt.compareSync(req.body.password, resp.password)) {
@@ -227,11 +227,11 @@ app.post('/sign-up', (req, res) => {
     usuario.save((err, resp) => {
         if (err) {
             errors.push(err);
-            res.render('home', {
+            res.render('sign-up', {
                 errors
             });
         }
-        res.render('home', {
+        res.render('sign-in', {
             message: 'Registro realizado exitosamente.',
         });
     });
