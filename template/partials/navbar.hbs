@@ -12,21 +12,32 @@
             <li class="nav-item">
                 <a class="nav-link" href="/create-course">Crear Curso |</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="/view-all-courses">Ver Cursos |</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="/update-course">Actualizar Curso |</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="/register">Inscribir |</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="/list-students">Ver Inscritos</a>
             </li>
         </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Salir</button>
-            </form>
+        <form class="form-inline my-2 my-lg-0">
+            
+            {{#if sesion}} 
+            <a class="btn btn-success my-2 my-sm-0" href="/logout">Salir</a>&nbsp;
+            {{else}}
+            <a class="btn btn-secondary my-2 my-sm-0" href="/">Ingresar</a>&nbsp;
+            <a class="btn btn-secondary my-2 my-sm-0" href="/sign-up">Registrarme</a>&nbsp;
+            {{/if}}
+            
+        </form>
     </div>
 </nav>

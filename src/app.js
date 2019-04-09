@@ -1,25 +1,16 @@
 require('./config/config');
-require('./config/passport');
-
 // session
 const session = require('express-session');
-
-//express
+const MemoryStore = require('memorystore')(session)
+    //express
 const express = require('express');
 const app = express();
-
 // path
 const path = require('path');
-
 // bodyParser
 const bodyParser = require('body-parser');
-
 // mongoose
 const mongoose = require('mongoose');
-
-// passport
-const passport = require('passport');
-
 // paths
 const dirPublic = path.join(__dirname, "../public")
 const dirNode_modules = path.join(__dirname, '../node_modules')
@@ -32,12 +23,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
+    cookie: { maxAge: 86400000 },
+    store: new MemoryStore({
+        checkPeriod: 86400000
+    }),
     secret: 'secret',
     resave: true,
     saveUninitialized: true
 }));
-app.use(passport.initialize());
-app.use(passport.session());
 
 // routes
 app.use(require('./routes/index'));
@@ -50,6 +43,15 @@ mongoose.connect('mongodb://localhost:27017/inscriptions', { useNewUrlParser: tr
         console.log("Connection successful")
     }
 });
+
+// captura del inicio de sesion
+app.use((req, res, next) => {
+    if (req.session.usuario) {
+        res.locals.sesion = true
+        res.locals.role = req.session.role
+    }
+    next();
+})
 
 console.log(__dirname);
 

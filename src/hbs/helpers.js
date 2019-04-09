@@ -111,10 +111,3 @@ hbs.registerHelper('mostrarEstudiantes', (listaEstudiantes) => {
     texto = texto + `</tbody></table></form>`
     return texto;
 });
-
-hbs.isAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    return 'No autorizado.';
-};

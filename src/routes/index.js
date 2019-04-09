@@ -10,8 +10,6 @@ const path = require('path');
 const mongoose = require('mongoose');
 // bodyParser
 const bodyParser = require('body-parser');
-// passport
-const passport = require('passport');
 // views - partials
 const dirViews = path.join(__dirname, '../../template/views');
 const dirPartials = path.join(__dirname, '../../template/partials');
@@ -19,6 +17,8 @@ const dirPartials = path.join(__dirname, '../../template/partials');
 const Curso = require('./../models/cursos');
 const Estudiante = require('./../models/estudiantes');
 const Usuario = require('../models/usuarios');
+// bcrypt
+const bcrypt = require('bcrypt');
 
 app.set('view engine', 'hbs');
 app.set('views', dirViews)
@@ -28,13 +28,18 @@ app.get('/home', (req, res) => {
     res.render('home');
 });
 
+// página de inicio sign-in
+app.get('/', (req, res) => {
+    res.render('sign-in');
+});
+
 // crear curso
 app.get('/create-course', (req, res) => {
     res.render('create-course');
 });
 
 // notificación del curso guardado en BD
-app.post('/view-course', async(req, res) => {
+app.post('/view-course', (req, res) => {
     const errors = [];
     let curso = new Curso({
         nombre: req.body.nombre,
@@ -46,7 +51,7 @@ app.post('/view-course', async(req, res) => {
         duracion: req.body.duracion
     });
 
-    await curso.save((err, resp) => {
+    curso.save((err, resp) => {
         if (err) {
             errors.push(err);
             res.render('view-course', {
@@ -60,19 +65,24 @@ app.post('/view-course', async(req, res) => {
 });
 
 // ver todos los cursos
-app.get('/view-all-courses', async(req, res) => {
-    await Curso.find().sort({ codigo: 'asc' }).exec((err, resp) => {
-        if (!err) {
-            res.render('view-all-courses', {
-                listado: resp
-            });
-        }
+app.get('/view-all-courses', (req, res) => {
+    Usuario.findById(req.session.usuario, (err, usuario) => {
+        if (err) { res.render('error'); }
+        if (!usuario) { return res.redirect('/'); }
+
+        Curso.find().sort({ codigo: 'asc' }).exec((err, resp) => {
+            if (!err) {
+                res.render('view-all-courses', {
+                    listado: resp
+                });
+            }
+        });
     });
 });
 
 // actualizar el estado del curso
-app.get('/update-course', async(req, res) => {
-    await Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
+app.get('/update-course', (req, res) => {
+    Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
         if (!err) {
             res.render('update-course', {
                 listado: resp
@@ -82,8 +92,8 @@ app.get('/update-course', async(req, res) => {
 });
 
 // notificacion del curso actualizado en BD
-app.post('/view-course-updated', async(req, res) => {
-    await Curso.findOneAndUpdate({ codigo: req.body.codigo }, { $set: { estado: 'Cerrado' } }, { new: true }).then((data) => {
+app.post('/view-course-updated', (req, res) => {
+    Curso.findOneAndUpdate({ codigo: req.body.codigo }, { $set: { estado: 'Cerrado' } }, { new: true }).then((data) => {
         if (data) {
             res.render('view-course-updated', {
                 message: 'Curso actualizado exitosamente.',
@@ -97,19 +107,23 @@ app.post('/view-course-updated', async(req, res) => {
 });
 
 // inscripcion de estudiante
-app.get('/register', async(req, res) => {
-    // listado de cursos disponibles en select
-    await Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
-        if (!err) {
-            res.render('register', {
-                listado: resp
-            });
-        }
+app.get('/register', (req, res) => {
+    Usuario.findById(req.session.usuario, (err, usuario) => {
+        if (err) { res.render('error'); }
+        if (!usuario) { return res.redirect('/'); }
+        // listado de cursos disponibles en select
+        Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
+            if (!err) {
+                res.render('register', {
+                    listado: resp
+                });
+            }
+        });
     });
 });
 
 // notificacion de registro de estudiante
-app.post('/view-register', async(req, res) => {
+app.post('/view-register', (req, res) => {
     const errors = [];
     let estudiante = new Estudiante({
         documento: req.body.documento,
@@ -120,7 +134,7 @@ app.post('/view-register', async(req, res) => {
         curso: req.body.curso
     });
 
-    await estudiante.save((err, resp) => {
+    estudiante.save((err, resp) => {
         //pendiente validacion (El estudiante ya se encuentra inscrito en el curso.)
         if (err) {
             errors.push(err);
@@ -142,15 +156,14 @@ app.get('/list-students', (req, res) => {
                 listado: response,
             });
         });
-
     });
 });
 
 // notificacion al eliminar estudiante
-app.post('/delete-student', async(req, res) => {
+app.post('/delete-student', (req, res) => {
     const errors = [];
 
-    await Estudiante.findOneAndDelete({ documento: req.body.documento }).then((data) => {
+    Estudiante.findOneAndDelete({ documento: req.body.documento }).then((data) => {
         if (data) {
             res.render('delete-student', {
                 message: 'El estudiante ha sido eliminado del curso exitosamente.',
@@ -169,30 +182,49 @@ app.post('/delete-student', async(req, res) => {
     });
 });
 
-// sign-in get
-app.get('/', (req, res) => {
-    res.render('sign-in');
+// sign-in post
+app.post('/sign-in', (req, res) => {
+    Usuario.findOne({ documento: req.body.documento }, (err, resp) => {
+        if (err) {
+            res.render('error');
+        }
+
+        if (!resp) {
+            res.render('sign-in', {
+                error: 'Usuario no encontrado, por favor intente nuevamente.'
+            })
+        }
+
+        if (!bcrypt.compareSync(req.body.password, resp.password)) {
+            res.render('sign-in', {
+                error: 'La contraseña es incorrecta, por favor intente nuevamente.',
+            });
+        }
+
+        req.session.usuario = resp._id;
+        req.session.role = resp.role;
+
+        res.render('home', {
+            message: 'Inicio de sesión realizado exitosamente.',
+            role: req.session.role,
+            sesion: true
+        });
+    });
 });
 
-// sign-in post
-app.post('/sign-in', passport.authenticate('local', {
-    successRedirect: '/home',
-    failureRedirect: '/sign-in',
-}));
-
 // sign-up post
-app.post('/sign-up', async(req, res) => {
+app.post('/sign-up', (req, res) => {
     const errors = [];
     let usuario = new Usuario({
         documento: req.body.documento,
         nombre: req.body.nombre,
         correo: req.body.correo,
         telefono: req.body.telefono,
-        password: req.body.password,
+        password: bcrypt.hashSync(req.body.password, 10),
         role: req.body.role
     });
 
-    await usuario.save((err, resp) => {
+    usuario.save((err, resp) => {
         if (err) {
             errors.push(err);
             res.render('home', {
@@ -208,6 +240,16 @@ app.post('/sign-up', async(req, res) => {
 // sign-up get
 app.get('/sign-up', (req, res) => {
     res.render('sign-up');
+});
+
+// logout
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) { res.render('error'); }
+    });
+    res.render('sign-in', {
+        message: 'Sesión cerrada exitosamente.',
+    });
 });
 
 // error
