@@ -1,8 +1,8 @@
 require('./config/config');
 // session
 const session = require('express-session');
-const MemoryStore = require('memorystore')(session)
-    //express
+const MemoryStore = require('memorystore')(session);
+//express
 const express = require('express');
 const app = express();
 // path
@@ -47,7 +47,7 @@ mongoose.connect('mongodb://localhost:27017/inscriptions', {
     }
 });
 
-// captura para el inicio de sesión
+// captura de inicio de sesión
 app.use((req, res, next) => {
     if (req.session.usuario) {
         res.locals.session = true

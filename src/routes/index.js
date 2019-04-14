@@ -36,10 +36,11 @@ app.get('/home', (req, res) => {
 
 // crear curso
 app.get('/create-course', (req, res) => {
+    if (req.session.role == 'aspirante') { return res.redirect('/'); }
     res.render('create-course');
 });
 
-// notificación del curso guardado en BD
+// notificación del curso creado en BD
 app.post('/view-course', (req, res) => {
     const errors = [];
     let curso = new Curso({
@@ -67,6 +68,7 @@ app.post('/view-course', (req, res) => {
 
 // ver todos los cursos
 app.get('/view-all-courses', (req, res) => {
+    if (req.session.role == 'coordinador') { return res.redirect('/'); }
     Curso.find({}).sort({ codigo: 'asc' }).exec((err, resp) => {
         if (!err) {
             res.render('view-all-courses', {
@@ -78,6 +80,7 @@ app.get('/view-all-courses', (req, res) => {
 
 // actualizar el estado del curso
 app.get('/update-course', (req, res) => {
+    if (req.session.role == 'aspirante') { return res.redirect('/'); }
     Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
         if (!err) {
             res.render('update-course', {
@@ -104,6 +107,7 @@ app.post('/view-course-updated', (req, res) => {
 
 // inscripcion de estudiante
 app.get('/register', (req, res) => {
+    if (req.session.role == 'coordinador') { return res.redirect('/'); }
     // listado de cursos disponibles para el select
     Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
         if (!err) {
@@ -113,7 +117,6 @@ app.get('/register', (req, res) => {
         }
     });
 });
-
 
 // notificacion de registro de estudiante
 app.post('/view-register', (req, res) => {
@@ -142,6 +145,7 @@ app.post('/view-register', (req, res) => {
 
 // ver todos los estudiantes inscritos
 app.get('/list-all-students', (req, res) => {
+    if (req.session.role == 'aspirante') { return res.redirect('/'); }
     Estudiante.find({}, (err, resp) => {
         Curso.populate(resp, { path: "curso" }, (err, response) => {
             res.render('list-all-students', {
@@ -153,6 +157,7 @@ app.get('/list-all-students', (req, res) => {
 
 // ver cursos por estudiantes inscritos
 app.get('/list-courses-students', (req, res) => {
+    if (req.session.role == 'aspirante') { return res.redirect('/'); }
     Curso.find({}).sort({ codigo: 'asc' }).exec((err, resp) => {
         if (!err) {
             res.render('list-courses-students', {
@@ -162,6 +167,7 @@ app.get('/list-courses-students', (req, res) => {
     });
 });
 
+// ver estudiantes por curso seleccionado
 app.get('/list-students/:id', (req, res) => {
     let { id } = req.params;
     Estudiante.find({ curso: id }, (err, resp) => {
@@ -176,7 +182,6 @@ app.get('/list-students/:id', (req, res) => {
 // notificacion al eliminar estudiante
 app.post('/delete-student', (req, res) => {
     const errors = [];
-
     Estudiante.findOneAndDelete({ documento: req.body.documento }).then((data) => {
         if (data) {
             res.render('delete-student', {

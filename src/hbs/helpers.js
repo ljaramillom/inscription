@@ -18,7 +18,7 @@ hbs.registerHelper('listarCursos', (listaCursos) => {
 });
 
 // select para listar cursos 
-hbs.registerHelper('listarSelect', (listaCursos) => {
+hbs.registerHelper('selectCursos', (listaCursos) => {
     let texto = `<select class='form-control' name='curso'>`
     listaCursos.forEach(curso => {
         texto = texto +
@@ -46,7 +46,7 @@ hbs.registerHelper('listarCursosPorEstudiantes', (listaCursos) => {
     return texto;
 });
 
-// collapse cursos
+// collapse cursos con detalles
 hbs.registerHelper('mostrarCursos', (listaCursos) => {
     let texto = `<div class='accordion' id='accordionCursos'>`
     let i = 1;
