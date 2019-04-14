@@ -220,16 +220,16 @@ app.post('/sign-in', (req, res) => {
                 res.render('sign-in', {
                     error: 'La contraseña es incorrecta, por favor inténtalo nuevamente.',
                 });
+            } else {
+                req.session.usuario = resp._id;
+                req.session.role = resp.role;
+
+                res.render('home', {
+                    message: 'Inicio de sesión realizado exitosamente.',
+                    role: req.session.role,
+                    session: true
+                });
             }
-
-            req.session.usuario = resp._id;
-            req.session.role = resp.role;
-
-            res.render('home', {
-                message: 'Inicio de sesión realizado exitosamente.',
-                role: req.session.role,
-                session: true
-            });
         }
     });
 });
