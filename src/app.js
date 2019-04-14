@@ -36,7 +36,7 @@ app.use(session({
 app.use(require('./routes/index'));
 
 // connection
-mongoose.connect('mongodb://localhost:27017/inscriptions', {
+mongoose.connect(process.env.URLDB, {
     useCreateIndex: true,
     useNewUrlParser: true
 }, (err, resp) => {
