@@ -22,21 +22,27 @@ hbs.registerHelper('listarSelect', (listaCursos) => {
     let texto = `<select class='form-control' name='curso'>`
     listaCursos.forEach(curso => {
         texto = texto +
-            `<option value=${curso._id}><td>${curso.nombre}</option>`
+            `<option value=${curso._id}>${curso.nombre}</option>`
     });
     texto = texto + "</select>"
     return texto;
 });
 
-// select para buscar curso
-hbs.registerHelper('buscarCurso', (listaCursos) => {
-    let texto = `<select class='form-control' name='curso'>
-    <option value="---" selected>---</option>`
+// tabla para listar cursos por estudiantes
+hbs.registerHelper('listarCursosPorEstudiantes', (listaCursos) => {
+    let texto = `<table class='table table-bordered'> \ <thead> \ <th> Id </th> \ <th> Nombre </th> \ <th> Descripción </th> \ <th> Modalidad </th> \ <th> Valor </th> \ <th> Estado </th> \ <th> Duración (hrs) </th> \ <th> Acción </th> \ </thead> \ <tbody>`
     listaCursos.forEach(curso => {
         texto = texto +
-            `<option value=${curso._id}><td>${curso.nombre}</option>`
+            `<tr>   <td>${curso.codigo}</td>
+                    <td>${curso.nombre}</td>
+                    <td>${curso.descripcion}</td>
+                    <td>${curso.modalidad}</td>
+                    <td>${curso.valor}</td>
+                    <td>${curso.estado}</td>
+                    <td>${curso.duracion}</td>
+                    <td><a href="/list-students/${curso._id}" class="btn btn-info">Ver más</a></td></tr>`
     });
-    texto = texto + "</select>"
+    texto = texto + `</tbody> </table>`
     return texto;
 });
 
@@ -106,16 +112,18 @@ hbs.registerHelper('mostrarCollapse', (listaCursos) => {
 });
 
 // tabla listar estudiantes con boton para eliminar
-hbs.registerHelper('mostrarCursosPorEstudiantes', (listaEstudiantes) => {
+hbs.registerHelper('listarEstudiantes', (listaEstudiantes) => {
     let texto = ` <form action='/delete-student' method='POST'>
-    <table class='table table-bordered'> \ <thead> \ <th> Documento de Identidad </th> \ <th> Nombre </th> \ <th> Apellido </th> \ <th> Correo Electrónico </th> \ <th> Teléfono </th> \ <th> Acciones </th> \ </thead> \ <tbody>`
+    <table class='table table-bordered'> \ <thead> \ <th> Documento de Identidad </th> \ <th> Nombre </th> \ <th> Apellido </th> \ <th> Correo Electrónico </th> \ <th> Teléfono </th>\ <th> Curso </th> \ <th> Acción </th> \ </thead> \ <tbody>`
     listaEstudiantes.forEach(est => {
+        let nombreCurso = est.curso.nombre;
         texto = texto +
             `<tr><td>${est.documento}</td>
             <td> ${est.nombre}</td>
             <td>${est.apellido}</td>
             <td> ${est.correo}</td>
             <td> ${est.telefono}</td>
+            <td> ${nombreCurso}</td>
             <td><button type="submit" name="documento" value=${est.documento} class="btn btn-danger">Eliminar</button></td></tr></tr>`
     });
     texto = texto + `</tbody></table></form>`

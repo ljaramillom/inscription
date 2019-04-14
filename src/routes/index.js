@@ -67,17 +67,12 @@ app.post('/view-course', (req, res) => {
 
 // ver todos los cursos
 app.get('/view-all-courses', (req, res) => {
-    Usuario.findById(req.session.usuario, (err, usuario) => {
-        if (err) { res.render('error'); }
-        if (!usuario) { return res.redirect('/'); }
-
-        Curso.find().sort({ codigo: 'asc' }).exec((err, resp) => {
-            if (!err) {
-                res.render('view-all-courses', {
-                    listado: resp
-                });
-            }
-        });
+    Curso.find({}).sort({ codigo: 'asc' }).exec((err, resp) => {
+        if (!err) {
+            res.render('view-all-courses', {
+                listado: resp
+            });
+        }
     });
 });
 
@@ -109,19 +104,16 @@ app.post('/view-course-updated', (req, res) => {
 
 // inscripcion de estudiante
 app.get('/register', (req, res) => {
-    Usuario.findById(req.session.usuario, (err, usuario) => {
-        if (err) { res.render('error'); }
-        if (!usuario) { return res.redirect('/'); }
-        // listado de cursos disponibles para el select
-        Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
-            if (!err) {
-                res.render('register', {
-                    listado: resp
-                });
-            }
-        });
+    // listado de cursos disponibles para el select
+    Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
+        if (!err) {
+            res.render('register', {
+                listado: resp
+            });
+        }
     });
 });
+
 
 // notificacion de registro de estudiante
 app.post('/view-register', (req, res) => {
@@ -136,7 +128,6 @@ app.post('/view-register', (req, res) => {
     });
 
     estudiante.save((err, resp) => {
-        //pendiente validacion (El estudiante ya se encuentra inscrito en el curso.)
         if (err) {
             errors.push(err);
             res.render('view-register', {
@@ -162,10 +153,21 @@ app.get('/list-all-students', (req, res) => {
 
 // ver cursos por estudiantes inscritos
 app.get('/list-courses-students', (req, res) => {
-    Estudiante.find({}, (err, resp) => {
-        Curso.populate(resp, { path: "curso" }, (err, response) => {
+    Curso.find({}).sort({ codigo: 'asc' }).exec((err, resp) => {
+        if (!err) {
             res.render('list-courses-students', {
-                listado: response,
+                listado: resp
+            });
+        }
+    });
+});
+
+app.get('/list-students/:id', (req, res) => {
+    let { id } = req.params;
+    Estudiante.find({ curso: id }, (err, resp) => {
+        Curso.populate(resp, { path: "curso" }, (err, response) => {
+            res.render('list-students', {
+                listado: response
             });
         });
     });
@@ -221,7 +223,7 @@ app.post('/sign-in', (req, res) => {
             res.render('home', {
                 message: 'Inicio de sesión realizado exitosamente.',
                 role: req.session.role,
-                sesion: true
+                session: true
             });
         }
     });

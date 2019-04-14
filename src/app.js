@@ -47,10 +47,10 @@ mongoose.connect('mongodb://localhost:27017/inscriptions', {
     }
 });
 
-// captura del inicio de sesion
+// captura para el inicio de sesión
 app.use((req, res, next) => {
     if (req.session.usuario) {
-        res.locals.sesion = true
+        res.locals.session = true
         res.locals.role = req.session.role
     }
     next();
