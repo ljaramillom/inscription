@@ -59,10 +59,11 @@ app.post('/view-course', (req, res) => {
             res.render('view-course', {
                 errors
             });
+        } else {
+            res.render('view-course', {
+                message: 'Curso creado exitosamente.',
+            });
         }
-        res.render('view-course', {
-            message: 'Curso creado exitosamente.',
-        });
     });
 });
 
@@ -136,10 +137,11 @@ app.post('/view-register', (req, res) => {
             res.render('view-register', {
                 errors
             });
+        } else {
+            res.render('view-register', {
+                message: 'Inscripción realizada exitosamente.',
+            });
         }
-        res.render('view-register', {
-            message: 'Inscripción realizada exitosamente.',
-        });
     });
 });
 
@@ -252,10 +254,11 @@ app.post('/sign-up', (req, res) => {
             res.render('sign-up', {
                 errors
             });
+        } else {
+            res.render('sign-in', {
+                message: 'Registro realizado exitosamente.',
+            });
         }
-        res.render('sign-in', {
-            message: 'Registro realizado exitosamente.',
-        });
     });
 });
 
