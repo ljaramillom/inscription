@@ -17,9 +17,21 @@ hbs.registerHelper('listarCursos', (listaCursos) => {
     return texto;
 });
 
-// select listar cursos
+// select para listar cursos 
 hbs.registerHelper('listarSelect', (listaCursos) => {
     let texto = `<select class='form-control' name='curso'>`
+    listaCursos.forEach(curso => {
+        texto = texto +
+            `<option value=${curso._id}><td>${curso.nombre}</option>`
+    });
+    texto = texto + "</select>"
+    return texto;
+});
+
+// select para buscar curso
+hbs.registerHelper('buscarCurso', (listaCursos) => {
+    let texto = `<select class='form-control' name='curso'>
+    <option value="---" selected>---</option>`
     listaCursos.forEach(curso => {
         texto = texto +
             `<option value=${curso._id}><td>${curso.nombre}</option>`
@@ -62,7 +74,7 @@ hbs.registerHelper('mostrarCursos', (listaCursos) => {
     return texto;
 });
 
-// collapse cursos con boton
+// collapse cursos con boton para actualizar
 hbs.registerHelper('mostrarCollapse', (listaCursos) => {
     let texto = `<div class='accordion' id='accordionCursos'>`
     let i = 1;
@@ -93,10 +105,26 @@ hbs.registerHelper('mostrarCollapse', (listaCursos) => {
     return texto;
 });
 
-// tabla listar estudiantes
-hbs.registerHelper('mostrarEstudiantes', (listaEstudiantes) => {
+// tabla listar estudiantes con boton para eliminar
+hbs.registerHelper('mostrarCursosPorEstudiantes', (listaEstudiantes) => {
     let texto = ` <form action='/delete-student' method='POST'>
-    <table class='table table-bordered'> \ <thead> \ <th> Documento de Identidad </th> \ <th> Nombre </th> \ <th> Apellido </th> \ <th> Correo Electrónico </th> \ <th> Teléfono </th> \ <th> Curso </th> \ <th> Acciones </th> \ </thead> \ <tbody>`
+    <table class='table table-bordered'> \ <thead> \ <th> Documento de Identidad </th> \ <th> Nombre </th> \ <th> Apellido </th> \ <th> Correo Electrónico </th> \ <th> Teléfono </th> \ <th> Acciones </th> \ </thead> \ <tbody>`
+    listaEstudiantes.forEach(est => {
+        texto = texto +
+            `<tr><td>${est.documento}</td>
+            <td> ${est.nombre}</td>
+            <td>${est.apellido}</td>
+            <td> ${est.correo}</td>
+            <td> ${est.telefono}</td>
+            <td><button type="submit" name="documento" value=${est.documento} class="btn btn-danger">Eliminar</button></td></tr></tr>`
+    });
+    texto = texto + `</tbody></table></form>`
+    return texto;
+});
+
+// tabla listar cursos por estudiantes inscritos
+hbs.registerHelper('mostrarEstudiantes', (listaEstudiantes) => {
+    let texto = `<table class='table table-bordered'> \ <thead> \ <th> Documento de Identidad </th> \ <th> Nombre </th> \ <th> Apellido </th> \ <th> Correo Electrónico </th> \ <th> Teléfono </th> \ <th> Curso </th> \ </thead> \ <tbody>`
     listaEstudiantes.forEach(est => {
         let nombreCurso = est.curso.nombre;
         texto = texto +
@@ -106,8 +134,8 @@ hbs.registerHelper('mostrarEstudiantes', (listaEstudiantes) => {
             <td> ${est.correo}</td>
             <td> ${est.telefono}</td>
             <td> ${nombreCurso}</td>
-            <td><button type="submit" name="documento" value=${est.documento} class="btn btn-danger">Eliminar</button></td></tr></tr>`
+            </tr></tr>`
     });
-    texto = texto + `</tbody></table></form>`
+    texto = texto + `</tbody></table>`
     return texto;
 });

@@ -36,7 +36,10 @@ app.use(session({
 app.use(require('./routes/index'));
 
 // connection
-mongoose.connect('mongodb://localhost:27017/inscriptions', { useNewUrlParser: true }, (err, resp) => {
+mongoose.connect('mongodb://localhost:27017/inscriptions', {
+    useCreateIndex: true,
+    useNewUrlParser: true
+}, (err, resp) => {
     if (err) {
         console.log(err);
     } else {

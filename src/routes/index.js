@@ -24,13 +24,14 @@ app.set('view engine', 'hbs');
 app.set('views', dirViews)
 hbs.registerPartials(dirPartials);
 
-app.get('/home', (req, res) => {
-    res.render('home');
-});
-
-// página de inicio sign-in
+// sign-in
 app.get('/', (req, res) => {
     res.render('sign-in');
+});
+
+// home
+app.get('/home', (req, res) => {
+    res.render('home');
 });
 
 // crear curso
@@ -111,7 +112,7 @@ app.get('/register', (req, res) => {
     Usuario.findById(req.session.usuario, (err, usuario) => {
         if (err) { res.render('error'); }
         if (!usuario) { return res.redirect('/'); }
-        // listado de cursos disponibles en select
+        // listado de cursos disponibles para el select
         Curso.find({ estado: 'Disponible' }).exec((err, resp) => {
             if (!err) {
                 res.render('register', {
@@ -149,10 +150,21 @@ app.post('/view-register', (req, res) => {
 });
 
 // ver todos los estudiantes inscritos
-app.get('/list-students', (req, res) => {
+app.get('/list-all-students', (req, res) => {
     Estudiante.find({}, (err, resp) => {
         Curso.populate(resp, { path: "curso" }, (err, response) => {
-            res.render('list-students', {
+            res.render('list-all-students', {
+                listado: response,
+            });
+        });
+    });
+});
+
+// ver cursos por estudiantes inscritos
+app.get('/list-courses-students', (req, res) => {
+    Estudiante.find({}, (err, resp) => {
+        Curso.populate(resp, { path: "curso" }, (err, response) => {
+            res.render('list-courses-students', {
                 listado: response,
             });
         });
@@ -191,24 +203,27 @@ app.post('/sign-in', (req, res) => {
 
         if (!resp) {
             res.render('sign-in', {
-                error: 'Usuario no encontrado, por favor intente nuevamente.'
+                error: 'Usuario no encontrado, por favor inténtalo nuevamente o regístrate.'
             });
         }
 
-        if (!bcrypt.compareSync(req.body.password, resp.password)) {
-            res.render('sign-in', {
-                error: 'La contraseña es incorrecta, por favor intente nuevamente.',
+        if (resp) {
+
+            if (!bcrypt.compareSync(req.body.password, resp.password)) {
+                res.render('sign-in', {
+                    error: 'La contraseña es incorrecta, por favor inténtalo nuevamente.',
+                });
+            }
+
+            req.session.usuario = resp._id;
+            req.session.role = resp.role;
+
+            res.render('home', {
+                message: 'Inicio de sesión realizado exitosamente.',
+                role: req.session.role,
+                sesion: true
             });
         }
-
-        req.session.usuario = resp._id;
-        req.session.role = resp.role;
-
-        res.render('home', {
-            message: 'Inicio de sesión realizado exitosamente.',
-            role: req.session.role,
-            sesion: true
-        });
     });
 });
 
